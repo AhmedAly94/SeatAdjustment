@@ -1,10 +1,11 @@
 import QtQuick 2.13
 import QtQuick.Controls 2.1
 
-Rectangle {
+Item {
     id: root
 
     property int countValue: 0
+
     height: childrenRect.height
 
     Item {

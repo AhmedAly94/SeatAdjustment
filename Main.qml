@@ -1,28 +1,16 @@
 import "." as Seats
 import QtQuick 2.13
-import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.13
+import QtQuick.Controls 1.4
+import QtQuick.Controls 2.1
 
-/*!
-    \qmltype Main
-    \brief UI provides these features:
-    . The seat has a headrest that can be retracted and extended.
-    . The seat has a footrest and a backrest whose angles can be adjusted.
-    . The hardness of the seat cushion can be adjusted.
-    . It is possible to save and reload current positions of the seat.
-*/
 Rectangle {
     id: root
 
-    /*!
-       Property String for checking which Button has been pressed for seat adjustment.
-       Properties Int for saving values upon clicking saving button.
-    */
-    property string activeComponent: "default"
-    property int headRestValue: 0
-    property int backRestValue: 0
-    property int footRestValue: 0
-    property int seatHardnessValue: 0
+    property int headRestSavedValue: 0
+    property int backRestSavedValue: 0
+    property int footRestSavedValue: 0
+    property int seatHardnessSavedValue: 0
 
     width: 1000
     height: 800
@@ -65,10 +53,10 @@ Rectangle {
             text: "Default Position"
 
             onClicked: {
-                controlBackRest.value = 90;
-                controlHeadRest.value = 0;
-                controlFootRest.countValue = 0;
-                controlSeatHardness.state = 1;
+                stack.headRestValue = 0;
+                stack.backRestValue = 90;
+                stack.footRestValue = 0;
+                stack.seatValue = 1;
             }
         }
     }
@@ -100,10 +88,10 @@ Rectangle {
             text: "Saved Adjustements"
 
             onClicked: {
-                controlBackRest.value = backRestValue;
-                controlHeadRest.value = headRestValue;
-                controlFootRest.countValue = footRestValue;
-                controlSeatHardness.state = seatHardnessValue;
+                stack.backRestValue = backRestSavedValue;
+                stack.headRestValue = headRestSavedValue;
+                stack.footRestValue = footRestSavedValue;
+                stack.seatValue = seatHardnessSavedValue;
             }
         }
 
@@ -119,25 +107,24 @@ Rectangle {
             text: "Save Adjustments"
 
             onClicked: {
-                backRestValue = controlBackRest.value;
-                headRestValue = controlHeadRest.value;
-                footRestValue = controlFootRest.countValue;
-                seatHardnessValue = controlSeatHardness.state;
+                backRestSavedValue = stack.backRestValue;
+                headRestSavedValue = stack.headRestValue;
+                footRestSavedValue = stack.footRestValue;
+                seatHardnessSavedValue = stack.seatValue;
             }
         }
     }
 
-    /*!
-        Component for the menu containing Buttons
-    */
     Component {
         id: menu
 
-        Item {
+        Rectangle {
             id: menuIcons
 
             width: 250
             height: childrenRect.height
+
+            color: "black"
 
             anchors.centerIn: parent
 
@@ -164,7 +151,8 @@ Rectangle {
                         seatAnglesText.color = "grey";
                         headRestText.color = "white";
                         footRestText.color = "grey";
-                        activeComponent = "HeadRest";
+                        seatHardnessText.color = "grey";
+                        stack.currentIndex = 1;
                     }
                 }
 
@@ -185,7 +173,8 @@ Rectangle {
                         seatAnglesText.color = "white";
                         headRestText.color = "grey";
                         footRestText.color = "grey";
-                        activeComponent = "BackRest";
+                        seatHardnessText.color = "grey";
+                        stack.currentIndex = 2;
                     }
                 }
 
@@ -202,10 +191,11 @@ Rectangle {
                         color: "grey"
                     }
                     onClicked: {
+                        footRestText.color = "white";
                         seatAnglesText.color = "grey";
                         headRestText.color = "grey";
-                        footRestText.color = "white";
-                        activeComponent = "footRest";
+                        seatHardnessText.color = "grey";
+                        stack.currentIndex = 3;
                     }
                 }
 
@@ -222,10 +212,11 @@ Rectangle {
                         color: "grey"
                     }
                     onClicked: {
-                        seatHardnessText.color = "grey";
                         seatHardnessText.color = "white";
-                        seatHardnessText.color = "grey";
-                        activeComponent = "seatHardness";
+                        seatAnglesText.color = "grey";
+                        headRestText.color = "grey";
+                        footRestText.color = "grey";
+                        stack.currentIndex = 4;
                     }
                 }
             }
@@ -244,57 +235,63 @@ Rectangle {
         }
     }
 
-    /*!
-        loads the menu component
-    */
     Loader {
         id: leftMenu
 
-        anchors.verticalCenter: parent.verticalCenter
         sourceComponent: menu
+        anchors.verticalCenter: parent.verticalCenter
     }
 
-    /*!
-        Description of the UI to the user and all Seats components
-        to be visible only when corresponding button is clicked
-    */
-    Item {
-        id: description
+    StackLayout {
+        id: stack
 
-        visible: activeComponent == "default" ? true : false
-        anchors.centerIn: parent
-        Text {
-            text: "Please select your desired seat part \nto adjust your own comfortable position"
-            color: "white"
-            anchors.centerIn: parent
+        property alias headRestValue: controlHeadRest.value
+        property alias backRestValue: control.backRest
+        property alias footRestValue: controlFoot.footRest
+        property alias seatValue: controlSeatHardness.state
+
+        anchors.fill: parent
+
+        Item {
+            id: description
+
+            Text {
+                text: "Please select your desired seat part \n to adjust your own comfortable position"
+                color: "white"
+                anchors.centerIn: parent
+            }
         }
-    }
 
-    Seats.ControlHeadRest {
-        id: controlHeadRest
+        Seats.ControlHeadRest {
+            id: controlHeadRest
+        }
 
-        anchors.centerIn: parent
-        visible: activeComponent == "HeadRest" ? true : false
-    }
+        Item {
+            id: control
 
-    Seats.ControlBackRest {
-        id: controlBackRest
+            property alias backRest: controlBackRest.value
 
-        anchors.centerIn: parent
-        visible: activeComponent == "BackRest" ? true : false
-    }
+            Seats.ControlBackRest {
+                id: controlBackRest
 
-    Seats.ControlFootRest {
-        id: controlFootRest
+                anchors.centerIn: parent
+            }
+        }
 
-        anchors.centerIn: parent
-        visible: activeComponent == "footRest" ? true : false
-    }
+        Item {
+            id: controlFoot
 
-    Seats.ControlSeatHardness {
-        id: controlSeatHardness
+            property alias footRest: controlFootRest.countValue
 
-        anchors.centerIn: parent
-        visible: activeComponent == "seatHardness" ? true : false
+            Seats.ControlFootRest {
+                id: controlFootRest
+
+                anchors.centerIn: parent
+            }
+        }
+
+        Seats.ControlSeatHardness {
+            id: controlSeatHardness
+        }
     }
 }

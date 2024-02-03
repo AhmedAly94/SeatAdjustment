@@ -2,7 +2,7 @@ import QtQuick 2.13
 import QtQuick.Controls 2.1
 
 Item {
-    id: cushionHardness
+    id: root
 
     property alias state: spinBox.value
 
@@ -43,6 +43,7 @@ Item {
             leftMargin: 50
             verticalCenter: parent.verticalCenter
         }
+
         text: "Harden"
         color: "White"
         font.pointSize: 10
