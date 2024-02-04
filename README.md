@@ -1,3 +1,1 @@
-Please Create a folder named Seats
-Add the codes to this folder
-As requested run: qmlscene path/Main.qml
+clone the project and call qmlscene (5.15) for it to run
